@@ -682,7 +682,7 @@ class SemrushApp(APIApplication):
             httpx.HTTPStatusError: If the API request fails
 
         Tags:
-            keyword-analysis
+            keyword-analysis, important
         """
         if not phrase:
             raise ValueError("Phrase parameter is required")
