@@ -536,8 +536,174 @@ class SemrushApp(APIApplication):
         
         return self._handle_response(response)
 
+    def backlinks(
+        self,
+        target: str,
+        target_type: str,
+        export_columns: str | None = None,
+        display_sort: str | None = None,
+        display_limit: int | None = None,
+        display_offset: int | None = None,
+        display_filter: str | None = None
+    ) -> dict[str, Any]:
+        """
+        Get backlinks data for a domain, root domain, or URL.
+        
+        Args:
+            target (str): Root domain, subdomain, or URL of the website to investigate
+            target_type (str): Type of requested target (root_domain, domain, or url)
+            export_columns (str, optional): Comma-separated list of columns to include
+            display_sort (str, optional): Sorting order (e.g., "page_ascore_desc", "last_seen_asc")
+            display_limit (int, optional): Number of results to return (max 1,000,000)
+            display_offset (int, optional): Number of results to skip
+            display_filter (str, optional): Filter criteria for columns
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            backlinks
+        """
+        if not target:
+            raise ValueError("Target parameter is required")
+        if not target_type:
+            raise ValueError("Target_type parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "backlinks",
+            "key": self.api_key,
+            "target": target,
+            "target_type": target_type
+        }
+        
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        if display_sort is not None:
+            params["display_sort"] = display_sort
+        if display_limit is not None:
+            params["display_limit"] = display_limit
+        if display_offset is not None:
+            params["display_offset"] = display_offset
+        if display_filter is not None:
+            params["display_filter"] = display_filter
+            
+        response = self._get(self.base_url, params=params)
+        
+        return self._handle_response(response)
+
+    def backlinks_overview(
+        self,
+        target: str,
+        target_type: str,
+        export_columns: str | None = None,
+        display_sort: str | None = None,
+        display_limit: int | None = None,
+        display_offset: int | None = None,
+        display_filter: str | None = None
+    ) -> dict[str, Any]:
+        """
+        Get backlinks overview summary including type, referring domains, and IP addresses.
+        
+        Args:
+            target (str): Root domain, subdomain, or URL of the website to investigate
+            target_type (str): Type of requested target (root_domain, domain, or url)
+            export_columns (str, optional): Comma-separated list of columns to include
+            display_sort (str, optional): Sorting order for results
+            display_limit (int, optional): Number of results to return
+            display_offset (int, optional): Number of results to skip
+            display_filter (str, optional): Filter criteria for columns
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            backlinks
+        """
+        if not target:
+            raise ValueError("Target parameter is required")
+        if not target_type:
+            raise ValueError("Target_type parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "backlinks_overview",
+            "key": self.api_key,
+            "target": target,
+            "target_type": target_type
+        }
+        
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        if display_sort is not None:
+            params["display_sort"] = display_sort
+        if display_limit is not None:
+            params["display_limit"] = display_limit
+        if display_offset is not None:
+            params["display_offset"] = display_offset
+        if display_filter is not None:
+            params["display_filter"] = display_filter
+            
+        response = self._get(self.base_url, params=params)
+        
+        return self._handle_response(response)
+
+    def keyword_difficulty(
+        self,
+        phrase: str,
+        database: str = "us",
+        export_columns: str | None = None,
+        export_escape: int | None = None
+    ) -> dict[str, Any]:
+        """
+        Get keyword difficulty data to estimate ranking difficulty for organic search terms.
+        
+        Args:
+            phrase (str): Phrase (from 1 to 100 keywords separated by semicolons)
+            database (str): Regional database (default: "us")
+            export_columns (str, optional): Comma-separated list of columns to include
+            export_escape (int, optional): Set to 1 to wrap columns in quotes
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            keyword-analysis
+        """
+        if not phrase:
+            raise ValueError("Phrase parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "phrase_kdi",
+            "key": self.api_key,
+            "phrase": phrase,
+            "database": database
+        }
+        
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        if export_escape is not None:
+            params["export_escape"] = export_escape
+            
+        response = self._get(self.base_url, params=params)
+        
+        return self._handle_response(response)
+
     def list_tools(self):
         """
         Lists the available tools (methods) for this application.
         """
-        return [self.domain_ad_history, self.domain_organic_pages, self.domain_organic_search_keywords, self.domain_organic_subdomains, self.domain_paid_search_keywords, self.domain_pla_search_keywords, self.domain_vs_domain]
+        return [self.domain_ad_history, self.domain_organic_pages, self.domain_organic_search_keywords, self.domain_organic_subdomains, self.domain_paid_search_keywords, self.domain_pla_search_keywords, self.domain_vs_domain, self.backlinks, self.backlinks_overview, self.keyword_difficulty]
