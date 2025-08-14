@@ -1323,8 +1323,254 @@ class SemrushApp(APIApplication):
         
         return self._handle_response(response)
 
+    def indexed_pages(
+        self,
+        target: str,
+        target_type: str,
+        export_columns: str | None = None,
+        display_sort: str | None = None,
+        display_limit: int | None = None,
+        display_offset: int | None = None
+    ) -> dict[str, Any]:
+        """
+        Get indexed pages of the queried domain with backlink and response data.
+        
+        Args:
+            target (str): Root domain, subdomain, or URL of the website to investigate
+            target_type (str): Type of requested target (root_domain, domain, or url)
+            export_columns (str, optional): Comma-separated list of columns to include
+            display_sort (str, optional): Sorting order (e.g., "backlinks_num_desc", "backlinks_num_asc")
+            display_limit (int, optional): Number of results to return (default: 10,000)
+            display_offset (int, optional): Number of results to skip
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            backlinks
+        """
+        if not target:
+            raise ValueError("Target parameter is required")
+        if not target_type:
+            raise ValueError("Target_type parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "backlinks_pages",
+            "key": self.api_key,
+            "target": target,
+            "target_type": target_type
+        }
+        
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        if display_sort is not None:
+            params["display_sort"] = display_sort
+        if display_limit is not None:
+            params["display_limit"] = display_limit
+        if display_offset is not None:
+            params["display_offset"] = display_offset
+        
+        url = f"{self.base_url}/analytics/v1"
+        response = self._get(url, params=params)
+        
+        return self._handle_response(response)
+
+    def keyword_ads_history(
+        self,
+        phrase: str,
+        database: str = "us",
+        display_limit: int | None = None,
+        display_offset: int | None = None,
+        export_escape: int | None = None,
+        export_decode: int | None = None,
+        export_columns: str | None = None
+    ) -> dict[str, Any]:
+        """
+        Get domains that have bid on a keyword in the last 12 months with their paid search positions.
+        
+        Args:
+            phrase (str): Keyword or keyword expression to investigate
+            database (str): Regional database (default: "us")
+            display_limit (int, optional): Number of results to return (max 100,000)
+            display_offset (int, optional): Number of results to skip
+            export_escape (int, optional): Set to 1 to wrap columns in quotes
+            export_decode (int, optional): Set to 0 for URL-encoded response, 1 for normal response
+            export_columns (str, optional): Comma-separated list of columns to include
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            keyword-analysis
+        """
+        if not phrase:
+            raise ValueError("Phrase parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "phrase_adwords_historical",
+            "key": self.api_key,
+            "phrase": phrase,
+            "database": database
+        }
+        
+        if display_limit is not None:
+            params["display_limit"] = display_limit
+        if display_offset is not None:
+            params["display_offset"] = display_offset
+        if export_escape is not None:
+            params["export_escape"] = export_escape
+        if export_decode is not None:
+            params["export_decode"] = export_decode
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        
+        response = self._get(self.base_url, params=params)
+        
+        return self._handle_response(response)
+
+    def keyword_overview_all_databases(
+        self,
+        phrase: str,
+        database: str | None = None,
+        export_escape: int | None = None,
+        export_decode: int | None = None,
+        export_columns: str | None = None
+    ) -> dict[str, Any]:
+        """
+        Get keyword summary including volume, CPC, competition level, and results across all regional databases.
+        
+        Args:
+            phrase (str): Keyword or keyword expression to investigate
+            database (str, optional): Regional database (if not specified, uses all databases)
+            export_escape (int, optional): Set to 1 to wrap columns in quotes
+            export_decode (int, optional): Set to 0 for URL-encoded response, 1 for normal response
+            export_columns (str, optional): Comma-separated list of columns to include
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            keyword-analysis
+        """
+        if not phrase:
+            raise ValueError("Phrase parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "phrase_all",
+            "key": self.api_key,
+            "phrase": phrase
+        }
+        
+        if database is not None:
+            params["database"] = database
+        if export_escape is not None:
+            params["export_escape"] = export_escape
+        if export_decode is not None:
+            params["export_decode"] = export_decode
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        
+        response = self._get(self.base_url, params=params)
+        
+        return self._handle_response(response)
+
+    def keyword_overview_one_database(
+        self,
+        phrase: str,
+        database: str = "us",
+        export_escape: int | None = None,
+        export_decode: int | None = None,
+        display_date: str | None = None,
+        export_columns: str | None = None
+    ) -> dict[str, Any]:
+        """
+        Get keyword summary including volume, CPC, competition level, and results for a specific database.
+        
+        Args:
+            phrase (str): Keyword or keyword expression to investigate
+            database (str): Regional database (default: "us")
+            export_escape (int, optional): Set to 1 to wrap columns in quotes
+            export_decode (int, optional): Set to 0 for URL-encoded response, 1 for normal response
+            display_date (str, optional): Date in format "YYYYMM15" for historical data
+            export_columns (str, optional): Comma-separated list of columns to include
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            keyword-analysis
+        """
+        if not phrase:
+            raise ValueError("Phrase parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "phrase_this",
+            "key": self.api_key,
+            "phrase": phrase,
+            "database": database
+        }
+        
+        if export_escape is not None:
+            params["export_escape"] = export_escape
+        if export_decode is not None:
+            params["export_decode"] = export_decode
+        if display_date is not None:
+            params["display_date"] = display_date
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        
+        response = self._get(self.base_url, params=params)
+        
+        return self._handle_response(response)
+
     def list_tools(self):
         """
         Lists the available tools (methods) for this application.
         """
-        return [self.domain_ad_history, self.domain_organic_pages, self.domain_organic_search_keywords, self.domain_organic_subdomains, self.domain_paid_search_keywords, self.domain_pla_search_keywords, self.domain_vs_domain, self.backlinks, self.backlinks_overview, self.keyword_difficulty, self.ads_copies, self.anchors, self.authority_score_profile, self.batch_comparison, self.batch_keyword_overview, self.broad_match_keyword, self.categories, self.categories_profile, self.competitors, self.competitors_organic_search, self.competitors_paid_search]
+        return [
+            self.domain_ad_history,
+            self.domain_organic_pages,
+            self.domain_organic_search_keywords,
+            self.domain_organic_subdomains,
+            self.domain_paid_search_keywords,
+            self.domain_pla_search_keywords,
+            self.domain_vs_domain,
+            self.backlinks,
+            self.backlinks_overview,
+            self.keyword_difficulty,
+            self.ads_copies,
+            self.anchors,
+            self.authority_score_profile,
+            self.batch_comparison,
+            self.batch_keyword_overview,
+            self.broad_match_keyword,
+            self.categories,
+            self.categories_profile,
+            self.competitors,
+            self.competitors_organic_search,
+            self.competitors_paid_search,
+            self.indexed_pages,
+            self.keyword_ads_history,
+            self.keyword_overview_all_databases,
+            self.keyword_overview_one_database
+        ]
