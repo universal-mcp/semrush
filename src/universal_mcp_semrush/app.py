@@ -592,7 +592,8 @@ class SemrushApp(APIApplication):
         if display_filter is not None:
             params["display_filter"] = display_filter
             
-        response = self._get(self.base_url, params=params)
+        url = f"{self.base_url}/analytics/v1"
+        response = self._get(url, params=params)
         
         return self._handle_response(response)
 
@@ -652,7 +653,8 @@ class SemrushApp(APIApplication):
         if display_filter is not None:
             params["display_filter"] = display_filter
             
-        response = self._get(self.base_url, params=params)
+        url = f"{self.base_url}/analytics/v1"
+        response = self._get(url, params=params)
         
         return self._handle_response(response)
 
@@ -702,8 +704,131 @@ class SemrushApp(APIApplication):
         
         return self._handle_response(response)
 
+    def ads_copies(
+        self,
+        domain: str,
+        database: str = "us",
+        display_limit: int | None = None,
+        display_offset: int | None = None,
+        export_columns: str | None = None,
+        display_sort: str | None = None,
+        display_filter: str | None = None,
+        export_escape: int | None = None,
+        export_decode: int | None = None
+    ) -> dict[str, Any]:
+        """
+        Get unique ad copies that appeared when a domain ranked in Google's paid search results.
+        
+        Args:
+            domain (str): Unique name of a website to investigate
+            database (str): Regional database (default: "us")
+            display_limit (int, optional): Number of results to return (max 100,000)
+            display_offset (int, optional): Number of results to skip
+            export_columns (str, optional): Comma-separated list of columns to include
+            display_sort (str, optional): Sorting order (e.g., "pc_asc", "pc_desc")
+            display_filter (str, optional): Filter criteria for columns
+            export_escape (int, optional): Set to 1 to wrap columns in quotes
+            export_decode (int, optional): Set to 0 for URL-encoded response
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            domain-search
+        """
+        if not domain:
+            raise ValueError("Domain parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "domain_adwords_unique",
+            "key": self.api_key,
+            "domain": domain,
+            "database": database
+        }
+        
+        if display_limit is not None:
+            params["display_limit"] = display_limit
+        if display_offset is not None:
+            params["display_offset"] = display_offset
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        if display_sort is not None:
+            params["display_sort"] = display_sort
+        if display_filter is not None:
+            params["display_filter"] = display_filter
+        if export_escape is not None:
+            params["export_escape"] = export_escape
+        if export_decode is not None:
+            params["export_decode"] = export_decode
+            
+        response = self._get(self.base_url, params=params)
+        
+        return self._handle_response(response)
+
+    def anchors(
+        self,
+        target: str,
+        target_type: str,
+        export_columns: str | None = None,
+        display_sort: str | None = None,
+        display_limit: int | None = None,
+        display_offset: int | None = None
+    ) -> dict[str, Any]:
+        """
+        Get anchor texts used in backlinks leading to a domain, root domain, or URL.
+        
+        Args:
+            target (str): Root domain, subdomain, or URL of the website to investigate
+            target_type (str): Type of requested target (root_domain, domain, or url)
+            export_columns (str, optional): Comma-separated list of columns to include
+            display_sort (str, optional): Sorting order (e.g., "domains_num_desc", "backlinks_num_asc")
+            display_limit (int, optional): Number of results to return (default: 10,000)
+            display_offset (int, optional): Number of results to skip
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            backlinks
+        """
+        if not target:
+            raise ValueError("Target parameter is required")
+        if not target_type:
+            raise ValueError("Target_type parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "backlinks_anchors",
+            "key": self.api_key,
+            "target": target,
+            "target_type": target_type
+        }
+        
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        if display_sort is not None:
+            params["display_sort"] = display_sort
+        if display_limit is not None:
+            params["display_limit"] = display_limit
+        if display_offset is not None:
+            params["display_offset"] = display_offset
+            
+        url = f"{self.base_url}/analytics/v1"
+        response = self._get(url, params=params)
+        
+        return self._handle_response(response)
+
     def list_tools(self):
         """
         Lists the available tools (methods) for this application.
         """
-        return [self.domain_ad_history, self.domain_organic_pages, self.domain_organic_search_keywords, self.domain_organic_subdomains, self.domain_paid_search_keywords, self.domain_pla_search_keywords, self.domain_vs_domain, self.backlinks, self.backlinks_overview, self.keyword_difficulty]
+        return [self.domain_ad_history, self.domain_organic_pages, self.domain_organic_search_keywords, self.domain_organic_subdomains, self.domain_paid_search_keywords, self.domain_pla_search_keywords, self.domain_vs_domain, self.backlinks, self.backlinks_overview, self.keyword_difficulty, self.ads_copies, self.anchors]
