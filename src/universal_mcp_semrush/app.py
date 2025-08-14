@@ -827,8 +827,319 @@ class SemrushApp(APIApplication):
         
         return self._handle_response(response)
 
+    def authority_score_profile(
+        self,
+        target: str,
+        target_type: str
+    ) -> dict[str, Any]:
+        """
+        Get distribution of referring domains by Authority Score from 0 to 100.
+        
+        Args:
+            target (str): Root domain, subdomain, or URL of the website to investigate
+            target_type (str): Type of requested target (root_domain, domain, or url)
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            backlinks
+        """
+        if not target:
+            raise ValueError("Target parameter is required")
+        if not target_type:
+            raise ValueError("Target_type parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "backlinks_ascore_profile",
+            "key": self.api_key,
+            "target": target,
+            "target_type": target_type
+        }
+        
+        url = f"{self.base_url}/analytics/v1"
+        response = self._get(url, params=params)
+        
+        return self._handle_response(response)
+
+    def batch_comparison(
+        self,
+        targets: list[str],
+        target_types: list[str],
+        export_columns: str | None = None
+    ) -> dict[str, Any]:
+        """
+        Compare backlink profiles and link-building progress across multiple competitors.
+        
+        Args:
+            targets (list[str]): Array of root domains, subdomains, or URLs to investigate (max 200)
+            target_types (list[str]): Array of target types corresponding to targets (root_domain, domain, or url)
+            export_columns (str, optional): Comma-separated list of columns to include
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing or invalid
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            backlinks
+        """
+        if not targets:
+            raise ValueError("Targets parameter is required")
+        if not target_types:
+            raise ValueError("Target_types parameter is required")
+        if len(targets) > 200:
+            raise ValueError("Maximum 200 targets allowed")
+        if len(targets) != len(target_types):
+            raise ValueError("Targets and target_types arrays must have the same length")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "backlinks_comparison",
+            "key": self.api_key
+        }
+        
+        # Add targets and target_types as arrays
+        for target in targets:
+            params["targets[]"] = target
+        for target_type in target_types:
+            params["target_types[]"] = target_type
+            
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        
+        url = f"{self.base_url}/analytics/v1"
+        response = self._get(url, params=params)
+        
+        return self._handle_response(response)
+
+    def batch_keyword_overview(
+        self,
+        phrase: str,
+        database: str = "us",
+        export_escape: int | None = None,
+        export_decode: int | None = None,
+        display_date: str | None = None,
+        export_columns: str | None = None
+    ) -> dict[str, Any]:
+        """
+        Get summary of up to 100 keywords including volume, CPC, competition level, and results count.
+        
+        Args:
+            phrase (str): Keyword or keyword expression to investigate (up to 100 keywords separated by semicolons)
+            database (str): Regional database (default: "us")
+            export_escape (int, optional): Set to 1 to wrap columns in quotes
+            export_decode (int, optional): Set to 0 for URL-encoded response, 1 for normal response
+            display_date (str, optional): Date in format "YYYYMM15" for historical data
+            export_columns (str, optional): Comma-separated list of columns to include
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            keyword-analysis
+        """
+        if not phrase:
+            raise ValueError("Phrase parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "phrase_these",
+            "key": self.api_key,
+            "phrase": phrase,
+            "database": database
+        }
+        
+        if export_escape is not None:
+            params["export_escape"] = export_escape
+        if export_decode is not None:
+            params["export_decode"] = export_decode
+        if display_date is not None:
+            params["display_date"] = display_date
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        
+        response = self._get(self.base_url, params=params)
+        
+        return self._handle_response(response)
+
+    def broad_match_keyword(
+        self,
+        phrase: str,
+        database: str = "us",
+        display_limit: int | None = None,
+        display_offset: int | None = None,
+        export_escape: int | None = None,
+        export_decode: int | None = None,
+        export_columns: str | None = None,
+        display_sort: str | None = None,
+        display_filter: str | None = None
+    ) -> dict[str, Any]:
+        """
+        Get broad matches and alternate search queries for a keyword or keyword expression.
+        
+        Args:
+            phrase (str): Keyword or keyword expression to investigate
+            database (str): Regional database (default: "us")
+            display_limit (int, optional): Number of results to return (max 100,000)
+            display_offset (int, optional): Number of results to skip
+            export_escape (int, optional): Set to 1 to wrap columns in quotes
+            export_decode (int, optional): Set to 0 for URL-encoded response, 1 for normal response
+            export_columns (str, optional): Comma-separated list of columns to include
+            display_sort (str, optional): Sorting order (e.g., "nq_desc", "cp_asc")
+            display_filter (str, optional): Filter criteria for columns
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            keyword-analysis
+        """
+        if not phrase:
+            raise ValueError("Phrase parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "phrase_fullsearch",
+            "key": self.api_key,
+            "phrase": phrase,
+            "database": database
+        }
+        
+        if display_limit is not None:
+            params["display_limit"] = display_limit
+        if display_offset is not None:
+            params["display_offset"] = display_offset
+        if export_escape is not None:
+            params["export_escape"] = export_escape
+        if export_decode is not None:
+            params["export_decode"] = export_decode
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        if display_sort is not None:
+            params["display_sort"] = display_sort
+        if display_filter is not None:
+            params["display_filter"] = display_filter
+        
+        response = self._get(self.base_url, params=params)
+        
+        return self._handle_response(response)
+
+    def categories(
+        self,
+        target: str,
+        target_type: str,
+        export_columns: str | None = None
+    ) -> dict[str, Any]:
+        """
+        Get list of categories that the queried domain belongs to with confidence ratings.
+        
+        Args:
+            target (str): Root domain, subdomain, or URL of the website to investigate
+            target_type (str): Type of requested target (root_domain, subdomain, or url)
+            export_columns (str, optional): Comma-separated list of columns to include
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            backlinks
+        """
+        if not target:
+            raise ValueError("Target parameter is required")
+        if not target_type:
+            raise ValueError("Target_type parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "backlinks_categories",
+            "key": self.api_key,
+            "target": target,
+            "target_type": target_type
+        }
+        
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        
+        url = f"{self.base_url}/analytics/v1"
+        response = self._get(url, params=params)
+        
+        return self._handle_response(response)
+
+    def categories_profile(
+        self,
+        target: str,
+        target_type: str,
+        export_columns: str | None = None,
+        display_limit: int | None = None,
+        display_offset: int | None = None
+    ) -> dict[str, Any]:
+        """
+        Get categories that referring domains belong to with domain counts for the queried domain.
+        
+        Args:
+            target (str): Root domain, subdomain, or URL of the website to investigate
+            target_type (str): Type of requested target (root_domain, domain, or url)
+            export_columns (str, optional): Comma-separated list of columns to include
+            display_limit (int, optional): Number of results to return (default: 10,000)
+            display_offset (int, optional): Number of results to skip
+            
+        Returns:
+            dict[str, Any]: API response data
+            
+        Raises:
+            ValueError: If required parameters are missing
+            httpx.HTTPStatusError: If the API request fails
+
+        Tags:
+            backlinks
+        """
+        if not target:
+            raise ValueError("Target parameter is required")
+        if not target_type:
+            raise ValueError("Target_type parameter is required")
+            
+        # Build parameters dictionary
+        params = {
+            "type": "backlinks_categories_profile",
+            "key": self.api_key,
+            "target": target,
+            "target_type": target_type
+        }
+        
+        if export_columns is not None:
+            params["export_columns"] = export_columns
+        if display_limit is not None:
+            params["display_limit"] = display_limit
+        if display_offset is not None:
+            params["display_offset"] = display_offset
+        
+        url = f"{self.base_url}/analytics/v1"
+        response = self._get(url, params=params)
+        
+        return self._handle_response(response)
+
     def list_tools(self):
         """
         Lists the available tools (methods) for this application.
         """
-        return [self.domain_ad_history, self.domain_organic_pages, self.domain_organic_search_keywords, self.domain_organic_subdomains, self.domain_paid_search_keywords, self.domain_pla_search_keywords, self.domain_vs_domain, self.backlinks, self.backlinks_overview, self.keyword_difficulty, self.ads_copies, self.anchors]
+        return [self.domain_ad_history, self.domain_organic_pages, self.domain_organic_search_keywords, self.domain_organic_subdomains, self.domain_paid_search_keywords, self.domain_pla_search_keywords, self.domain_vs_domain, self.backlinks, self.backlinks_overview, self.keyword_difficulty, self.ads_copies, self.anchors, self.authority_score_profile, self.batch_comparison, self.batch_keyword_overview, self.broad_match_keyword, self.categories, self.categories_profile]
